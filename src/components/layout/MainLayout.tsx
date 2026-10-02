@@ -3,7 +3,7 @@ import i18n from 'i18next';
 import { useChatStore, type Chat, type Message, type IncomingFriendRequest, isMessageOutgoing } from '../../store/useChatStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { DeveloperBadge, revalidateDevelopersOnConnection } from '../ui/DeveloperBadge';
-import { X, Trash, WifiOff, LogOut, RotateCw, Archive, ArrowLeft, Search, MoreVertical, Pencil, Phone, MessageSquare } from 'lucide-react';
+import { X, Trash, WifiOff, LogOut, RotateCw, Archive, ArrowLeft, Search, MoreVertical, Pencil, Phone, Camera, PhoneCall, Link2, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getPusher, getGroupPusher, CLIENT_SESSION_ID } from '../../utils/pusher';
 import {
@@ -864,6 +864,89 @@ export const MainLayout = () => {
   const pinnedChatIds = useChatStore((s) => s.pinnedChatIds) || [];
   const togglePinChat = useChatStore((s) => s.togglePinChat);
   const pinnedChatsSet = useMemo(() => new Set(pinnedChatIds), [pinnedChatIds]);
+  const messagesByChatId = useChatStore((s) => s.messagesByChatId);
+  const startCall = useCallStore((s) => s.startCall);
+  const myNickname = useAuthStore((s) => s.nickname) || 'YOU';
+
+  const formatCallDate = useCallback((timestamp: number) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday =
+      date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear();
+
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const timeStr = `${hours}:${minutes}`;
+
+    if (isToday) return timeStr;
+
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday =
+      date.getDate() === yesterday.getDate() &&
+      date.getMonth() === yesterday.getMonth() &&
+      date.getFullYear() === yesterday.getFullYear();
+
+    if (isYesterday) {
+      return `${t('common.yesterday', 'вчера')} ${t('common.at', 'в')} ${timeStr}`;
+    }
+
+    const isRu = i18n.language?.startsWith('ru');
+    const monthsRu = [
+      'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря',
+    ];
+    if (isRu) {
+      return `${date.getDate()} ${monthsRu[date.getMonth()]} ${t('common.at', 'в')} ${timeStr}`;
+    }
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ` ${timeStr}`;
+  }, [t, i18n.language]);
+
+  const callHistory = useMemo(() => {
+    const list: Array<{
+      id: string;
+      chatId: string;
+      chatName: string;
+      avatarUrl?: string;
+      time: number;
+      timeFormatted: string;
+      isOutgoing: boolean;
+      status: string;
+    }> = [];
+
+    const activeChatsMap = new Map(chats.map((c) => [c.id, c]));
+
+    Object.entries(messagesByChatId).forEach(([chatId, msgs]) => {
+      const chat = activeChatsMap.get(chatId);
+      if (!chat) return;
+
+      msgs.forEach((msg) => {
+        if (msg.mediaType !== 'call' && !msg.text?.startsWith('[Call]')) {
+          return;
+        }
+
+        const isOutgoing = isMessageOutgoing(msg, myCode, myNickname, chat);
+        const status = msg.mediaName || 'completed';
+
+        list.push({
+          id: msg.id || `${chat.id}_${msg.time}`,
+          chatId: chat.id,
+          chatName: chat.name,
+          avatarUrl: chat.avatarUrl,
+          time: msg.time,
+          timeFormatted: formatCallDate(msg.time),
+          isOutgoing,
+          status,
+        });
+      });
+    });
+
+    list.sort((a, b) => b.time - a.time);
+    return list;
+  }, [messagesByChatId, chats, myCode, myNickname, formatCallDate]);
+
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     type: ConfirmActionType | null;
@@ -5582,7 +5665,7 @@ export const MainLayout = () => {
                           </div>
                         </div>
                       )}
-                      {!isViewingArchive && !searchQuery.trim() && archivedChats.length > 0 && (
+                      {!isViewingArchive && !searchQuery.trim() && archivedChats.length > 0 && mobileNavTab !== 'calls' && (
                         <ArchiveListItem
                           archivedChats={archivedChats}
                           onOpenArchive={() => setIsViewingArchive(true)}
@@ -5590,7 +5673,81 @@ export const MainLayout = () => {
                           isLightTheme={isLightTheme}
                         />
                       )}
-                      {visibleChats.map((chat) => renderChat(chat))}
+                      {mobileNavTab === 'calls' ? (
+                        <div className="flex flex-col py-1 select-none">
+                          <div
+                            onClick={() => {
+                              const link = `https://orbita.chat/call/${generateRandomCode()}`;
+                              navigator.clipboard.writeText(link);
+                            }}
+                            className="flex items-center gap-3.5 px-4 py-3 mx-2 rounded-2xl hover:bg-[var(--surface-container-strong)] transition-colors cursor-pointer"
+                          >
+                            <div className="w-11 h-11 rounded-full bg-[#343844] flex items-center justify-center text-white shrink-0">
+                              <Link2 size={20} className="-rotate-45" />
+                            </div>
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="font-semibold text-[15px] text-[var(--text-main)] truncate">
+                                {t('common.create_call_link', 'Создать ссылку для звонка')}
+                              </span>
+                              <span className="text-xs text-[var(--text-dim)] truncate mt-0.5">
+                                {t('common.create_call_link_desc', 'Поделиться ссылкой для звонка Orbita')}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="h-px bg-[var(--border-color)] my-1.5 mx-4 opacity-50" />
+
+                          {callHistory.length > 0 ? (
+                            callHistory.map((item) => {
+                              const isMissed = item.status === 'missed' || item.status === 'rejected' || item.status === 'declined' || item.status === 'canceled';
+                              return (
+                                <div
+                                  key={item.id}
+                                  onClick={() => handleSelectChat(item.chatId)}
+                                  className="flex items-center justify-between px-4 py-3 mx-2 rounded-2xl hover:bg-[var(--surface-container-strong)] transition-colors cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                                    <Avatar src={item.avatarUrl} alt={item.chatName} className="w-11 h-11 rounded-full shrink-0" />
+                                    <div className="flex flex-col min-w-0 flex-1">
+                                      <span className="font-semibold text-[15px] text-[var(--text-main)] truncate">
+                                        {item.chatName}
+                                      </span>
+                                      <div className="flex items-center gap-1.5 text-xs text-[var(--text-dim)] mt-0.5">
+                                        {item.isOutgoing ? (
+                                          <ArrowUpRight size={15} strokeWidth={2.2} style={{ color: 'var(--accent-color)', flexShrink: 0 }} />
+                                        ) : isMissed ? (
+                                          <ArrowDownLeft size={15} strokeWidth={2.2} style={{ color: '#ef4444', flexShrink: 0 }} />
+                                        ) : (
+                                          <ArrowDownLeft size={15} strokeWidth={2.2} style={{ color: 'var(--accent-color)', flexShrink: 0 }} />
+                                        )}
+                                        <span className="truncate">{item.timeFormatted}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      startCall(item.chatId, 'audio', myNickname);
+                                    }}
+                                    aria-label={t('callsModal.start_call', 'Позвонить')}
+                                    className="p-2 text-[var(--text-dim)] hover:text-[var(--text-main)] bg-transparent border-none outline-none cursor-pointer flex items-center justify-center shrink-0"
+                                  >
+                                    <Phone size={18} />
+                                  </button>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <div className="flex flex-col items-center justify-center py-16 text-[var(--text-dim)] text-sm">
+                              <span>{t('common.no_recent_calls', 'Нет недавних звонков')}</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        visibleChats.map((chat) => renderChat(chat))
+                      )}
                     </div>
                   )}
                 </div>
@@ -5625,25 +5782,46 @@ export const MainLayout = () => {
               {isMobileView && !activeChatId && (
                 <>
                   <div
-                    className="absolute right-4 z-20"
+                    className="absolute right-4 z-20 flex flex-col items-center gap-3"
                     style={{
-                      bottom: '76px',
+                      bottom: '84px',
                     }}
                   >
-                    <button
-                      type="button"
-                      onClick={() => setConnectModalConfig({ isOpen: true, type: 'friend' })}
-                      aria-label={t('common.new_chat', 'Новый чат')}
-                      className="w-14 h-14 rounded-2xl bg-[var(--accent-color)] text-white shadow-xl flex items-center justify-center active:scale-95 transition-transform cursor-pointer border-none outline-none"
-                    >
-                      <Pencil size={24} />
-                    </button>
+                    {mobileNavTab === 'chats' ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setConnectModalConfig({ isOpen: true, type: 'friend' })}
+                          aria-label={t('common.camera', 'Камера')}
+                          className="w-12 h-12 rounded-full bg-[#24262e] text-white shadow-lg flex items-center justify-center active:scale-95 transition-transform cursor-pointer border-none outline-none"
+                        >
+                          <Camera size={20} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConnectModalConfig({ isOpen: true, type: 'friend' })}
+                          aria-label={t('common.new_chat', 'Новый чат')}
+                          className="w-14 h-14 rounded-2xl bg-[#343844] text-white shadow-xl flex items-center justify-center active:scale-95 transition-transform cursor-pointer border-none outline-none"
+                        >
+                          <Pencil size={22} />
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setShowCallsModal(true)}
+                        aria-label={t('common.calls_tab', 'Звонки')}
+                        className="w-14 h-14 rounded-2xl bg-[#343844] text-white shadow-xl flex items-center justify-center active:scale-95 transition-transform cursor-pointer border-none outline-none"
+                      >
+                        <PhoneCall size={22} />
+                      </button>
+                    )}
                   </div>
 
                   <div
-                    className="flex items-center justify-around w-full shrink-0 select-none border-t border-[var(--border-color)] bg-[var(--bg-primary)]"
+                    className="flex items-center justify-around w-full shrink-0 select-none bg-[#131418] border-t border-[rgba(255,255,255,0.06)]"
                     style={{
-                      height: '64px',
+                      height: '68px',
                       paddingBottom: 'env(safe-area-inset-bottom, 0px)',
                     }}
                   >
@@ -5651,32 +5829,58 @@ export const MainLayout = () => {
                       type="button"
                       onClick={() => setMobileNavTab('chats')}
                       aria-label={t('common.chats_tab', 'Чаты')}
-                      className={`flex flex-col items-center justify-center gap-1 flex-1 py-1.5 border-none bg-transparent outline-none cursor-pointer ${
-                        mobileNavTab === 'chats' ? 'text-[var(--text-main)]' : 'text-[var(--text-dim)]'
+                      className={`flex flex-col items-center justify-center gap-1 flex-1 py-1 border-none bg-transparent outline-none cursor-pointer transition-colors ${
+                        mobileNavTab === 'chats' ? 'text-white' : 'text-[#8e929b]'
                       }`}
                     >
                       <div
-                        className={`px-4 py-1 rounded-full flex items-center justify-center ${
-                          mobileNavTab === 'chats' ? 'bg-[var(--surface-container-strong)]' : ''
+                        className={`px-5 py-1 rounded-full flex items-center justify-center transition-all ${
+                          mobileNavTab === 'chats' ? 'bg-[#343844] text-white' : 'text-[#8e929b]'
                         }`}
+                        style={{ minWidth: '60px', height: '32px' }}
                       >
-                        <MessageSquare size={20} />
+                        {mobileNavTab === 'chats' ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.96 9.96 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2Z" />
+                          </svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
+                            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.96 9.96 0 0 0 12 22" />
+                          </svg>
+                        )}
                       </div>
-                      <span className="text-[11.5px] font-medium">{t('common.chats_tab', 'Чаты')}</span>
+                      <span className={`text-[12px] ${mobileNavTab === 'chats' ? 'font-semibold text-white' : 'font-medium text-[#8e929b]'}`}>
+                        {t('common.chats_tab', 'Чаты')}
+                      </span>
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => setShowCallsModal(true)}
+                      onClick={() => setMobileNavTab('calls')}
                       aria-label={t('common.calls_tab', 'Звонки')}
-                      className={`flex flex-col items-center justify-center gap-1 flex-1 py-1.5 border-none bg-transparent outline-none cursor-pointer ${
-                        mobileNavTab === 'calls' ? 'text-[var(--text-main)]' : 'text-[var(--text-dim)]'
+                      className={`flex flex-col items-center justify-center gap-1 flex-1 py-1 border-none bg-transparent outline-none cursor-pointer transition-colors ${
+                        mobileNavTab === 'calls' ? 'text-white' : 'text-[#8e929b]'
                       }`}
                     >
-                      <div className="px-4 py-1 rounded-full flex items-center justify-center">
-                        <Phone size={20} />
+                      <div
+                        className={`px-5 py-1 rounded-full flex items-center justify-center transition-all ${
+                          mobileNavTab === 'calls' ? 'bg-[#343844] text-white' : 'text-[#8e929b]'
+                        }`}
+                        style={{ minWidth: '60px', height: '32px' }}
+                      >
+                        {mobileNavTab === 'calls' ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M7.829 16.171a20.9 20.9 0 0 1-4.846-7.614c-.573-1.564-.048-3.282 1.13-4.46l.729-.728a2.11 2.11 0 0 1 2.987 0l1.707 1.707a2.11 2.11 0 0 1 0 2.987l-.42.42a1.81 1.81 0 0 0 0 2.56l3.84 3.841a1.81 1.81 0 0 0 2.56 0l.421-.42a2.11 2.11 0 0 1 2.987 0l1.707 1.707a2.11 2.11 0 0 1 0 2.987l-.728.728c-1.178 1.179-2.896 1.704-4.46 1.131a20.9 20.9 0 0 1-7.614-4.846Z" />
+                          </svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
+                            <path d="M7.829 16.171a20.9 20.9 0 0 1-4.846-7.614c-.573-1.564-.048-3.282 1.13-4.46l.729-.728a2.11 2.11 0 0 1 2.987 0l1.707 1.707a2.11 2.11 0 0 1 0 2.987l-.42.42a1.81 1.81 0 0 0 0 2.56l3.84 3.841a1.81 1.81 0 0 0 2.56 0l.421-.42a2.11 2.11 0 0 1 2.987 0l1.707 1.707a2.11 2.11 0 0 1 0 2.987l-.728.728c-1.178 1.179-2.896 1.704-4.46 1.131a20.9 20.9 0 0 1-7.614-4.846Z" />
+                          </svg>
+                        )}
                       </div>
-                      <span className="text-[11.5px] font-medium">{t('common.calls_tab', 'Звонки')}</span>
+                      <span className={`text-[12px] ${mobileNavTab === 'calls' ? 'font-semibold text-white' : 'font-medium text-[#8e929b]'}`}>
+                        {t('common.calls_tab', 'Звонки')}
+                      </span>
                     </button>
                   </div>
                 </>

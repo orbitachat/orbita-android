@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.facebook.react.bridge.ReactApplicationContext
@@ -21,6 +23,7 @@ class OrbitaNotificationModule(private val reactContext: ReactApplicationContext
 
     init {
         createNotificationChannels()
+        OrbitaForegroundService.start(reactContext)
     }
 
     private fun createNotificationChannels() {
@@ -33,17 +36,34 @@ class OrbitaNotificationModule(private val reactContext: ReactApplicationContext
                 enableVibration(true)
             }
 
+            val defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                .build()
+
             val callsChannel = NotificationChannel(
                 "orbita_calls",
                 "Orbita Calls",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 enableVibration(true)
+                setSound(defaultRingtoneUri, audioAttributes)
             }
 
             notificationManager.createNotificationChannel(messagesChannel)
             notificationManager.createNotificationChannel(callsChannel)
         }
+    }
+
+    @ReactMethod
+    fun startBackgroundService() {
+        OrbitaForegroundService.start(reactContext)
+    }
+
+    @ReactMethod
+    fun stopBackgroundService() {
+        OrbitaForegroundService.stop(reactContext)
     }
 
     @ReactMethod
@@ -60,7 +80,7 @@ class OrbitaNotificationModule(private val reactContext: ReactApplicationContext
         )
 
         val notification = NotificationCompat.Builder(reactContext, "orbita_messages")
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -88,7 +108,7 @@ class OrbitaNotificationModule(private val reactContext: ReactApplicationContext
         val notificationText = if (callerName.isNotBlank()) "Входящий звонок: $callerName" else "Входящий звонок"
 
         val notification = NotificationCompat.Builder(reactContext, "orbita_calls")
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Orbita")
             .setContentText(notificationText)
             .setPriority(NotificationCompat.PRIORITY_MAX)
