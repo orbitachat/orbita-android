@@ -192,7 +192,7 @@ function App() {
   const setShowInSystemTray = useChatStore((state) => state.setShowInSystemTray);
   const setAutoLaunch = useChatStore((state) => state.setAutoLaunch);
 
-  const [isAppLocked, setIsAppLocked] = useState(() => securityService.isPasswordSet());
+  const [isAppLocked, setIsAppLocked] = useState(() => securityService.isAppLockActive());
 
   useEffect(() => {
     console.log('[App] Requesting notification permission...');

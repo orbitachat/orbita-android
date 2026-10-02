@@ -2,6 +2,7 @@ import { useRef, useEffect, type ReactElement } from 'react';
 import { StyleSheet, View, BackHandler, Platform, PermissionsAndroid, StatusBar, NativeModules } from 'react-native';
 import { WebView } from 'react-native-webview';
 import type { WebViewNavigation } from 'react-native-webview';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 export default function AppNative(): ReactElement {
   const webViewRef = useRef<any>(null);
@@ -60,6 +61,34 @@ export default function AppNative(): ReactElement {
         NativeModules.OrbitaNotificationModule?.clearCallNotification();
       } else if (data?.type === 'CLEAR_NOTIFICATIONS') {
         NativeModules.OrbitaNotificationModule?.clearNotifications();
+      } else if (data?.type === 'CHECK_BIOMETRIC') {
+        LocalAuthentication.hasHardwareAsync().then((hasHardware) => {
+          if (!hasHardware) {
+            webViewRef.current?.injectJavaScript("window.__orbitaBiometricAvailable = false; window.dispatchEvent(new CustomEvent('orbita_biometric_status', { detail: { available: false } })); true;");
+            return;
+          }
+          LocalAuthentication.isEnrolledAsync().then((isEnrolled) => {
+            const available = !!isEnrolled;
+            webViewRef.current?.injectJavaScript(`window.__orbitaBiometricAvailable = ${available}; window.dispatchEvent(new CustomEvent('orbita_biometric_status', { detail: { available: ${available} } })); true;`);
+          });
+        }).catch(() => {
+          webViewRef.current?.injectJavaScript("window.__orbitaBiometricAvailable = false; true;");
+        });
+      } else if (data?.type === 'REQUEST_BIOMETRIC_AUTH') {
+        LocalAuthentication.authenticateAsync({
+          promptMessage: 'Orbita',
+          fallbackLabel: '',
+          cancelLabel: 'Отмена',
+          disableDeviceFallback: true,
+        }).then((result) => {
+          if (result.success) {
+            webViewRef.current?.injectJavaScript("window.dispatchEvent(new CustomEvent('orbita_biometric_success')); true;");
+          } else {
+            webViewRef.current?.injectJavaScript("window.dispatchEvent(new CustomEvent('orbita_biometric_failed')); true;");
+          }
+        }).catch(() => {
+          webViewRef.current?.injectJavaScript("window.dispatchEvent(new CustomEvent('orbita_biometric_failed')); true;");
+        });
       }
     } catch {}
   };

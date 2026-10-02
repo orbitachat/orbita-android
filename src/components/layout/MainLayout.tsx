@@ -3,7 +3,7 @@ import i18n from 'i18next';
 import { useChatStore, type Chat, type Message, type IncomingFriendRequest, isMessageOutgoing } from '../../store/useChatStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { DeveloperBadge, revalidateDevelopersOnConnection } from '../ui/DeveloperBadge';
-import { X, Trash, WifiOff, LogOut, RotateCw, Archive, ArrowLeft } from 'lucide-react';
+import { X, Trash, WifiOff, LogOut, RotateCw, Archive, ArrowLeft, Search, MoreVertical, Pencil, Phone, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getPusher, getGroupPusher, CLIENT_SESSION_ID } from '../../utils/pusher';
 import {
@@ -459,11 +459,11 @@ const ChatListItem = React.memo(({
           ? (isLightTheme ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)')
           : 'transparent',
         border: 'none',
-        padding: '10px 11px 10px 14px',
-        minHeight: 72,
+        padding: '12px 16px',
+        minHeight: 76,
         boxSizing: 'border-box',
         contentVisibility: 'auto',
-        containIntrinsicSize: '72px',
+        containIntrinsicSize: '76px',
         willChange: 'transform',
         transition: 'background-color 0.12s ease',
       }}
@@ -481,13 +481,13 @@ const ChatListItem = React.memo(({
       }}
     >
       <div className="flex justify-between items-center min-w-0">
-        <div style={{ width: 54, height: 54, marginRight: 12, flexShrink: 0, position: 'relative' }}>
+        <div style={{ width: 56, height: 56, marginRight: 14, flexShrink: 0, position: 'relative' }}>
           {chat.id === 'notes' ? (
-            <NotesAvatar className="w-[54px] h-[54px]" />
+            <NotesAvatar className="w-[56px] h-[56px]" />
           ) : chat.type === 'bot' ? (
-            <BotAvatar className="w-[54px] h-[54px]" />
+            <BotAvatar className="w-[56px] h-[56px]" />
           ) : (
-            <Avatar src={chat.avatarUrl} alt={chat.name} className="w-[54px] h-[54px]" style={{ borderRadius: '50%' }} />
+            <Avatar src={chat.avatarUrl} alt={chat.name} className="w-[56px] h-[56px]" style={{ borderRadius: '50%' }} />
           )}
           {chat.type === 'private' && chat.id !== 'notes' && chat.online && (
             <span
@@ -496,11 +496,11 @@ const ChatListItem = React.memo(({
                 position: 'absolute',
                 bottom: 0,
                 right: 0,
-                width: 12,
-                height: 12,
+                width: 14,
+                height: 14,
                 borderRadius: '50%',
                 backgroundColor: 'var(--accent-color, #7C3AED)',
-                boxShadow: `0 0 0 2px ${ringColor}`,
+                boxShadow: `0 0 0 2.5px ${ringColor}`,
                 zIndex: 2,
                 pointerEvents: 'none',
                 flexShrink: 0,
@@ -510,11 +510,11 @@ const ChatListItem = React.memo(({
           )}
         </div>
         <div className="flex flex-col min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 mb-0.5 min-w-0">
+          <div className="flex items-center gap-1.5 mb-1 min-w-0">
             <div className="flex items-center gap-1 min-w-0 flex-1">
               {chat.type === 'channel' && (
                 <ChannelMegaphoneIcon
-                  size={15}
+                  size={16}
                   className="flex-shrink-0"
                   style={{
                     color: isLightTheme ? '#555555' : 'rgba(255, 255, 255, 0.85)',
@@ -524,7 +524,7 @@ const ChatListItem = React.memo(({
               )}
               {chat.type === 'group' && (
                 <GroupUsersIcon
-                  size={15}
+                  size={16}
                   className="flex-shrink-0"
                   style={{
                     color: isLightTheme ? '#555555' : 'rgba(255, 255, 255, 0.85)',
@@ -534,7 +534,7 @@ const ChatListItem = React.memo(({
               )}
               {chat.type === 'bot' && (
                 <BotIcon
-                  size={15}
+                  size={16}
                   className="flex-shrink-0"
                   style={{
                     color: isLightTheme ? '#555555' : 'rgba(255, 255, 255, 0.85)',
@@ -543,9 +543,9 @@ const ChatListItem = React.memo(({
                 />
               )}
               <span
-                className="text-[15px] font-bold truncate whitespace-nowrap overflow-hidden text-ellipsis min-w-0"
+                className="text-[17px] font-semibold truncate whitespace-nowrap overflow-hidden text-ellipsis min-w-0"
                 style={{
-                  color: isLightTheme ? '#111111' : 'rgba(255,255,255,0.85)',
+                  color: isLightTheme ? '#111111' : 'rgba(255,255,255,0.95)',
                   fontFamily: 'inherit'
                 }}
               >
@@ -566,9 +566,9 @@ const ChatListItem = React.memo(({
                 </span>
               )}
             </div>
-            <div className="ml-auto flex items-center flex-shrink-0" style={{ gap: 3 }}>
+            <div className="ml-auto flex items-center flex-shrink-0" style={{ gap: 4 }}>
               {status && (
-                <div style={{ display: 'flex', alignItems: 'center', transform: 'translateY(-2.5px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', transform: 'translateY(-1px)' }}>
                   <MessageStatus
                     status={status}
                     isOwn={true}
@@ -578,7 +578,7 @@ const ChatListItem = React.memo(({
               )}
               {timeStr && (
                 <span
-                  className="text-[12px] font-medium tabular-nums whitespace-nowrap"
+                  className="text-[13px] font-medium tabular-nums whitespace-nowrap"
                   style={{
                     color: isLightTheme ? '#757575' : 'var(--text-dim, #808080)',
                   }}
@@ -590,7 +590,7 @@ const ChatListItem = React.memo(({
           </div>
           <div className="flex items-center min-w-0 w-full overflow-hidden">
             <div
-              className="text-[14px] font-normal whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0"
+              className="text-[15px] font-normal whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0"
               style={{
                 color: showDraft
                   ? (isLightTheme ? '#111111' : 'rgba(255,255,255,0.85)')
@@ -841,6 +841,8 @@ export const MainLayout = () => {
     step: state.step,
   })));
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchingMobile, setIsSearchingMobile] = useState(false);
+  const [mobileNavTab, setMobileNavTab] = useState<'chats' | 'calls'>('chats');
   const [connectModalConfig, setConnectModalConfig] = useState<{
     isOpen: boolean;
     type: 'group' | 'channel' | 'friend';
@@ -5012,15 +5014,21 @@ export const MainLayout = () => {
               {isMobileView && !activeChatId && (isCallMinimized ? <CallMiniPlayer /> : <GlobalAudioPlayer />)}
 
               <div
-                className="px-4 py-1 select-none"
+                className="px-4 py-2 select-none"
                 style={{
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 30,
+                  backgroundColor: 'var(--chat-list-bg, #1e1e1e)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  paddingTop: isMobileView ? 'calc(18px + env(safe-area-inset-top, 0px))' : 'calc(12px + env(safe-area-inset-top, 0px))',
+                  paddingTop: isMobileView ? 'calc(16px + env(safe-area-inset-top, 0px))' : 'calc(12px + env(safe-area-inset-top, 0px))',
+                  paddingBottom: '10px',
+                  flexShrink: 0,
                 }}
               >
-                <div className="flex items-center min-w-0" style={{ width: '100%' }}>
+                <div className="flex items-center min-w-0 w-full">
                   {isViewingArchive ? (
                     <div className="flex items-center w-full gap-2">
                       <button
@@ -5029,114 +5037,207 @@ export const MainLayout = () => {
                         aria-label={t('common.back', 'Назад')}
                         className="flex items-center justify-center cursor-pointer transition-all active:scale-95 text-[var(--text-dim)] hover:text-[var(--text-main)] hover:bg-[var(--surface-container)] rounded-full shrink-0"
                         style={{
-                          width: '36px',
-                          height: '36px',
+                          width: '38px',
+                          height: '38px',
                           border: 'none',
                           background: 'transparent',
                           outline: 'none',
                           padding: 0,
                         }}
                       >
-                        <ArrowLeft size={20} />
+                        <ArrowLeft size={22} />
                       </button>
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <span className="font-bold text-[16px] text-[var(--text-main)]">
+                        <span className="font-bold text-[18px] text-[var(--text-main)]">
                           {t('common.archive', 'Архив')}
                         </span>
-                        <span className="text-xs text-[var(--text-dim)]">
+                        <span className="text-sm text-[var(--text-dim)]">
                           {archivedChats.length}
                         </span>
                       </div>
                     </div>
-                  ) : (
-                    <>
-                      {isMobileView && (
+                  ) : isMobileView ? (
+                    isSearchingMobile ? (
+                      <div className="flex items-center w-full gap-2">
                         <button
                           type="button"
-                          onClick={() => setIsMainMenuOpen(true)}
-                          aria-label={t('mainMenu.open_menu', 'Открыть меню')}
+                          onClick={() => {
+                            setIsSearchingMobile(false);
+                            setSearchQuery('');
+                          }}
+                          aria-label={t('common.back', 'Назад')}
                           className="flex items-center justify-center cursor-pointer transition-all active:scale-95 text-[var(--text-dim)] hover:text-[var(--text-main)] hover:bg-[var(--surface-container)] rounded-full shrink-0"
                           style={{
-                            width: '36px',
-                            height: '36px',
+                            width: '38px',
+                            height: '38px',
                             border: 'none',
                             background: 'transparent',
                             outline: 'none',
-                            marginRight: '8px',
                             padding: 0,
                           }}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-                            <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 6h18M3 12h18M3 18h18"/>
-                          </svg>
+                          <ArrowLeft size={22} />
                         </button>
-                      )}
-                      <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
-                        <input
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder={t('common.search', 'Поиск')}
-                          style={{
-                            width: '100%',
-                            height: '36px',
-                            borderRadius: '999px',
-                            border: 'none',
-                            outline: 'none',
-                            boxShadow: 'none',
-                            backgroundColor: 'var(--md-surface, var(--surface-container, rgba(255,255,255,0.05)))',
-                            color: 'var(--text-main, #e0e0e0)',
-                            fontSize: '13px',
-                            paddingLeft: '14px',
-                            paddingRight: searchQuery ? '32px' : '14px',
-                            boxSizing: 'border-box',
-                          }}
-                        />
-                        {searchQuery && (
-                          <button
-                            onClick={() => setSearchQuery('')}
-                            aria-label={t('common.close', 'Закрыть')}
+                        <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
+                          <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder={t('common.search', 'Поиск')}
+                            autoFocus
                             style={{
-                              position: 'absolute',
-                              right: '8px',
-                              top: '50%',
-                              transform: 'translateY(-50%)',
-                              background: 'none',
+                              width: '100%',
+                              height: '40px',
+                              borderRadius: '999px',
                               border: 'none',
-                              cursor: 'pointer',
-                              color: 'var(--text-dim, #9ca3af)',
-                              padding: '2px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              zIndex: 1,
+                              outline: 'none',
+                              boxShadow: 'none',
+                              backgroundColor: 'var(--md-surface, var(--surface-container, rgba(255,255,255,0.08)))',
+                              color: 'var(--text-main, #e0e0e0)',
+                              fontSize: '15px',
+                              paddingLeft: '16px',
+                              paddingRight: searchQuery ? '36px' : '16px',
+                              boxSizing: 'border-box',
+                            }}
+                          />
+                          {searchQuery && (
+                            <button
+                              onClick={() => setSearchQuery('')}
+                              aria-label={t('common.close', 'Закрыть')}
+                              style={{
+                                position: 'absolute',
+                                right: '10px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: 'var(--text-dim, #9ca3af)',
+                                padding: '2px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 1,
+                              }}
+                            >
+                              <X size={18} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center min-w-0 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setIsMainMenuOpen(true)}
+                            aria-label={t('mainMenu.open_menu', 'Открыть меню')}
+                            className="flex items-center justify-center cursor-pointer transition-all active:scale-95 shrink-0"
+                            style={{
+                              width: '38px',
+                              height: '38px',
+                              border: 'none',
+                              background: 'transparent',
+                              outline: 'none',
+                              padding: 0,
                             }}
                           >
-                            <X size={18} />
+                            <Avatar
+                              src={avatarUrl}
+                              alt={nickname || '?'}
+                              className="w-[38px] h-[38px] rounded-full object-cover"
+                              style={{ width: '38px', height: '38px' }}
+                            />
                           </button>
-                        )}
+                          <span className="font-bold text-[22px] text-[var(--text-main)] truncate select-none">
+                            Orbita
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setIsSearchingMobile(true)}
+                            aria-label={t('common.search', 'Поиск')}
+                            className="flex items-center justify-center cursor-pointer transition-all active:scale-95 text-[var(--text-dim)] hover:text-[var(--text-main)] hover:bg-[var(--surface-container)] rounded-full shrink-0"
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              border: 'none',
+                              background: 'transparent',
+                              outline: 'none',
+                              padding: 0,
+                            }}
+                          >
+                            <Search size={22} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsMainMenuOpen(true)}
+                            aria-label={t('mainMenu.open_menu', 'Меню')}
+                            className="flex items-center justify-center cursor-pointer transition-all active:scale-95 text-[var(--text-dim)] hover:text-[var(--text-main)] hover:bg-[var(--surface-container)] rounded-full shrink-0"
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              border: 'none',
+                              background: 'transparent',
+                              outline: 'none',
+                              padding: 0,
+                            }}
+                          >
+                            <MoreVertical size={22} />
+                          </button>
+                        </div>
                       </div>
-                    </>
+                    )
+                  ) : (
+                    <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={t('common.search', 'Поиск')}
+                        style={{
+                          width: '100%',
+                          height: '36px',
+                          borderRadius: '999px',
+                          border: 'none',
+                          outline: 'none',
+                          boxShadow: 'none',
+                          backgroundColor: 'var(--md-surface, var(--surface-container, rgba(255,255,255,0.05)))',
+                          color: 'var(--text-main, #e0e0e0)',
+                          fontSize: '13px',
+                          paddingLeft: '14px',
+                          paddingRight: searchQuery ? '32px' : '14px',
+                          boxSizing: 'border-box',
+                        }}
+                      />
+                      {searchQuery && (
+                        <button
+                          onClick={() => setSearchQuery('')}
+                          aria-label={t('common.close', 'Закрыть')}
+                          style={{
+                            position: 'absolute',
+                            right: '8px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: 'var(--text-dim, #9ca3af)',
+                            padding: '2px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 1,
+                          }}
+                        >
+                          <X size={18} />
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
-
-              {isMobileView && (
-                <div
-                  className="flex items-center px-4 pt-2.5 pb-1 gap-5 overflow-x-auto no-scrollbar select-none"
-                  style={{
-                    borderBottom: '1px solid var(--border-color)',
-                  }}
-                >
-                  <div className="relative pb-1.5 cursor-pointer text-[13px] font-semibold text-[var(--accent-color)] flex-shrink-0">
-                    <span>{t('common.all', 'Все')}</span>
-                    <div
-                      className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full"
-                      style={{ backgroundColor: 'var(--accent-color, #7C3AED)' }}
-                    />
-                  </div>
-                </div>
-              )}
 
               {incomingFriendRequests.length > 0 && (
                 <div className="px-4 pt-2.5 pb-1">
@@ -5520,6 +5621,66 @@ export const MainLayout = () => {
                   }}
                 />
               </div>
+
+              {isMobileView && !activeChatId && (
+                <>
+                  <div
+                    className="absolute right-4 z-20"
+                    style={{
+                      bottom: '76px',
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setConnectModalConfig({ isOpen: true, type: 'friend' })}
+                      aria-label={t('common.new_chat', 'Новый чат')}
+                      className="w-14 h-14 rounded-2xl bg-[var(--accent-color)] text-white shadow-xl flex items-center justify-center active:scale-95 transition-transform cursor-pointer border-none outline-none"
+                    >
+                      <Pencil size={24} />
+                    </button>
+                  </div>
+
+                  <div
+                    className="flex items-center justify-around w-full shrink-0 select-none border-t border-[var(--border-color)] bg-[var(--bg-primary)]"
+                    style={{
+                      height: '64px',
+                      paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setMobileNavTab('chats')}
+                      aria-label={t('common.chats_tab', 'Чаты')}
+                      className={`flex flex-col items-center justify-center gap-1 flex-1 py-1.5 border-none bg-transparent outline-none cursor-pointer ${
+                        mobileNavTab === 'chats' ? 'text-[var(--text-main)]' : 'text-[var(--text-dim)]'
+                      }`}
+                    >
+                      <div
+                        className={`px-4 py-1 rounded-full flex items-center justify-center ${
+                          mobileNavTab === 'chats' ? 'bg-[var(--surface-container-strong)]' : ''
+                        }`}
+                      >
+                        <MessageSquare size={20} />
+                      </div>
+                      <span className="text-[11.5px] font-medium">{t('common.chats_tab', 'Чаты')}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowCallsModal(true)}
+                      aria-label={t('common.calls_tab', 'Звонки')}
+                      className={`flex flex-col items-center justify-center gap-1 flex-1 py-1.5 border-none bg-transparent outline-none cursor-pointer ${
+                        mobileNavTab === 'calls' ? 'text-[var(--text-main)]' : 'text-[var(--text-dim)]'
+                      }`}
+                    >
+                      <div className="px-4 py-1 rounded-full flex items-center justify-center">
+                        <Phone size={20} />
+                      </div>
+                      <span className="text-[11.5px] font-medium">{t('common.calls_tab', 'Звонки')}</span>
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </ResizableSidebar>

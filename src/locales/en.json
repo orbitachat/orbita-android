@@ -41,7 +41,9 @@
       "err_mismatch": "Passwords do not match",
       "err_wrong_current": "Incorrect current password",
       "password_saved": "Password saved successfully!",
-      "password_removed": "Password removed"
+      "password_removed": "Password removed",
+      "biometric_unlock": "Unlock with fingerprint",
+      "biometric_unlock_desc": "Use biometrics or fingerprint to quickly unlock the app."
     },
     "emojiPicker": {
       "emojis": "Emojis",
@@ -62,7 +64,10 @@
       "unlock_button": "Unlock",
       "done_button": "Done",
       "wrong_password": "Incorrect password. Please try again.",
-      "decrypting": "Decrypting data and loading chats..."
+      "decrypting": "Decrypting data and loading chats...",
+      "biometric_prompt": "Scan fingerprint",
+      "biometric_failed": "Biometric authentication failed",
+      "biometric_scan_desc": "App is locked. Confirm entrance with fingerprint."
     },
     "qrModal": {
       "title": "Get QR code",
@@ -79,6 +84,11 @@
       "copied": "QR code copied to clipboard"
     },
     "common": {
+      "chats_tab": "Chats",
+      "calls_tab": "Calls",
+      "new_chat": "New chat",
+      "show_password": "Show password",
+      "hide_password": "Hide password",
       "link_copied": "Link copied",
       "image_copied": "Photo copied to clipboard",
       "image_saved_to_clipboard": "Photo copied to clipboard",

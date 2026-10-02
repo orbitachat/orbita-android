@@ -1,5 +1,3 @@
-// src/services/securityService.ts
-
 const LOCK_ENABLED_KEY = 'orbita_lock_enabled';
 const LOCK_SALT_KEY = 'orbita_lock_salt';
 const LOCK_HASH_KEY = 'orbita_lock_hash';
@@ -11,9 +9,6 @@ export interface PasswordStrength {
   color: string;
 }
 
-/**
- * Evaluates password strength locally using length, character variety, and entropy rules.
- */
 export function evaluatePasswordStrength(password: string): PasswordStrength {
   if (!password || password.length < 6) {
     return {
@@ -26,11 +21,9 @@ export function evaluatePasswordStrength(password: string): PasswordStrength {
 
   let score = 0;
 
-  // Length checks
   if (password.length >= 8) score += 1;
   if (password.length >= 12) score += 1;
 
-  // Character variety checks
   if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score += 1;
   if (/[0-9]/.test(password)) score += 1;
   if (/[^a-zA-Z0-9]/.test(password)) score += 1;
@@ -46,9 +39,6 @@ export function evaluatePasswordStrength(password: string): PasswordStrength {
   }
 }
 
-/**
- * Derives a PBKDF2 hash using Web Crypto API (SHA-256, 100,000 iterations).
- */
 async function deriveHash(password: string, salt: Uint8Array): Promise<string> {
   const enc = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
@@ -86,9 +76,23 @@ function hexToBuffer(hex: string): Uint8Array {
   return bytes;
 }
 
+const BIOMETRIC_ENABLED_KEY = 'orbita_biometric_enabled';
+
 export const securityService = {
   isPasswordSet(): boolean {
     return localStorage.getItem(LOCK_ENABLED_KEY) === 'true';
+  },
+
+  isBiometricEnabled(): boolean {
+    return localStorage.getItem(BIOMETRIC_ENABLED_KEY) === 'true';
+  },
+
+  setBiometricEnabled(enabled: boolean): void {
+    localStorage.setItem(BIOMETRIC_ENABLED_KEY, enabled ? 'true' : 'false');
+  },
+
+  isAppLockActive(): boolean {
+    return this.isPasswordSet() || this.isBiometricEnabled();
   },
 
   async setPassword(password: string): Promise<boolean> {
@@ -102,8 +106,7 @@ export const securityService = {
       localStorage.setItem(LOCK_SALT_KEY, saltHex);
       localStorage.setItem(LOCK_HASH_KEY, hashHex);
       return true;
-    } catch (err) {
-      console.error('[Security] Failed to set password:', err);
+    } catch {
       return false;
     }
   },
@@ -119,8 +122,7 @@ export const securityService = {
       const computedHash = await deriveHash(password, salt);
 
       return computedHash === expectedHash;
-    } catch (err) {
-      console.error('[Security] Failed to verify password:', err);
+    } catch {
       return false;
     }
   },

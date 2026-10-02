@@ -373,8 +373,8 @@ const MenuItem = ({
     style={{
       display: 'flex',
       alignItems: 'center',
-      gap: 16,
-      padding: '12px 20px',
+      gap: 18,
+      padding: '14px 20px',
       borderRadius: 0,
       cursor: 'pointer',
       transition: 'background 150ms',
@@ -386,12 +386,12 @@ const MenuItem = ({
     onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(202,196,208,0.08)')}
     onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
   >
-    <div style={{ width: 20, height: 20, borderRadius: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: MD3.onSurface, flexShrink: 0, backgroundColor: 'transparent' }}>
+    <div style={{ width: 24, height: 24, borderRadius: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: MD3.onSurface, flexShrink: 0, backgroundColor: 'transparent' }}>
       {icon}
     </div>
     <div style={{ flex: 1, minWidth: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <p style={{ fontSize: 14, fontWeight: 500, color: MD3.onSurface, margin: 0 }}>{label}</p>
+        <p style={{ fontSize: 16.5, fontWeight: 500, color: MD3.onSurface, margin: 0 }}>{label}</p>
         {badge}
       </div>
     </div>
@@ -606,10 +606,18 @@ const PrivacySettingsScreen = ({ onOpenPassword, onOpenBackup }: { onOpenPasswor
   })));
 
   const [isPasswordSet, setIsPasswordSet] = useState(() => securityService.isPasswordSet());
+  const [isBiometricEnabled, setIsBiometricEnabled] = useState(() => securityService.isBiometricEnabled());
 
   useEffect(() => {
     setIsPasswordSet(securityService.isPasswordSet());
+    setIsBiometricEnabled(securityService.isBiometricEnabled());
   }, []);
+
+  const handleToggleBiometric = () => {
+    const nextVal = !isBiometricEnabled;
+    setIsBiometricEnabled(nextVal);
+    securityService.setBiometricEnabled(nextVal);
+  };
 
   const handleToggleScreenProtection = async () => {
     const nextVal = !screenProtectionEnabled;
@@ -749,6 +757,26 @@ const PrivacySettingsScreen = ({ onOpenPassword, onOpenBackup }: { onOpenPasswor
           marginBottom: 8,
         }}>
           {t('security.group_title', 'Безопасность')}
+        </div>
+        <div style={{
+          backgroundColor: MD3.surface,
+          borderRadius: 0,
+          padding: '16px 20px',
+          margin: '0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: `1px solid ${MD3.outlineMed}`,
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: MD3.onSurface }}>
+              {t('security.biometric_unlock', 'Разблокировка отпечатком пальца')}
+            </div>
+            <div style={{ fontSize: 12, color: MD3.onSurfaceVar, marginTop: 2 }}>
+              {t('security.biometric_unlock_desc', 'Использовать биометрию или отпечаток пальца для быстрой разблокировки.')}
+            </div>
+          </div>
+          <M3Switch checked={isBiometricEnabled} onChange={handleToggleBiometric} />
         </div>
         <div
           onClick={onOpenPassword}
@@ -2925,25 +2953,25 @@ export const SettingsScreen = () => {
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '16px',
-          padding: '12px 20px 16px',
+          gap: '18px',
+          padding: '16px 20px 20px',
           userSelect: 'none',
         }}
       >
-        <div style={{ position: 'relative', width: '66px', height: '66px', flexShrink: 0 }}>
+        <div style={{ position: 'relative', width: '72px', height: '72px', flexShrink: 0 }}>
           <Avatar
             src={avatarUrl}
             alt={nickname || '?'}
-            className="w-[66px] h-[66px] rounded-full"
-            style={{ width: '66px', height: '66px' }}
+            className="w-[72px] h-[72px] rounded-full"
+            style={{ width: '72px', height: '72px' }}
           />
         </div>
 
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '3px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span
               style={{
-                fontSize: '16.5px',
+                fontSize: '22px',
                 fontWeight: 700,
                 color: MD3.onSurface,
                 lineHeight: 1.2,
@@ -2958,16 +2986,15 @@ export const SettingsScreen = () => {
           <div
             onClick={handleCopyCode}
             style={{
-              fontSize: '13.5px',
-              fontWeight: 500,
-              color: 'var(--accent-color, #9b7dd4)',
+              fontSize: '14.5px',
+              fontWeight: 400,
+              color: MD3.onSurfaceVar,
               wordBreak: 'break-all',
               cursor: 'pointer',
               lineHeight: 1.25,
-              fontFamily: '"JetBrains Mono", Consolas, Menlo, monospace',
             }}
           >
-            {myCode || '------'}
+            {myCode ? `@${myCode}` : '------'}
           </div>
         </div>
 
@@ -2977,17 +3004,20 @@ export const SettingsScreen = () => {
             onClick={() => pushTab('qrCode')}
             aria-label={t('qrModal.title', 'Получить QR-код')}
             style={{
-              background: 'transparent',
+              background: 'rgba(255,255,255,0.08)',
               border: 'none',
-              color: MD3.onSurfaceVar,
+              borderRadius: '50%',
+              width: '42px',
+              height: '42px',
+              color: MD3.onSurface,
               cursor: 'pointer',
-              padding: '6px',
+              padding: 0,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <QrCodeMiniIcon size={20} color={MD3.onSurfaceVar} />
+            <QrCodeMiniIcon size={22} color={MD3.onSurface} />
           </button>
         </div>
       </div>
