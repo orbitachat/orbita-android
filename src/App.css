@@ -78,14 +78,19 @@ html {
 
 @media (max-width: 768px) {
   html {
-    font-size: 19px;
+    font-size: 20px;
   }
   :root {
-    --text-scale: 1.15;
+    --text-scale: 1.2;
   }
 }
 
-html,
+html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   width: 100%;
   height: 100%;
@@ -95,15 +100,19 @@ body {
   overscroll-behavior: none;
   user-select: none;
   -webkit-user-select: none;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 #root {
   width: 100%;
   height: 100%;
-  height: 100dvh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  padding-bottom: var(--keyboard-height, 0px);
+  box-sizing: border-box;
 }
 
 *,

@@ -5017,7 +5017,7 @@ export const MainLayout = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  paddingTop: '12px',
+                  paddingTop: 'calc(12px + env(safe-area-inset-top, 0px))',
                 }}
               >
                 <div className="flex items-center min-w-0" style={{ width: '100%' }}>
