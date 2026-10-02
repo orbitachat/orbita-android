@@ -1,11 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useEffect, type ReactElement } from 'react';
 import { StyleSheet, View, BackHandler, Platform, PermissionsAndroid, StatusBar, NativeModules } from 'react-native';
 import { WebView } from 'react-native-webview';
 import type { WebViewNavigation } from 'react-native-webview';
 
-export default function AppNative() {
+export default function AppNative(): ReactElement {
   const webViewRef = useRef<any>(null);
-  const [canGoBack, setCanGoBack] = useState(false);
+  const canGoBackRef = useRef(false);
 
   useEffect(() => {
     async function requestAndroidPermissions() {
@@ -71,6 +71,7 @@ export default function AppNative() {
       <StatusBar barStyle="light-content" backgroundColor="#121214" translucent={false} />
       <WebView
         ref={webViewRef}
+        webviewDebuggingEnabled={true}
         source={{ uri: webAppUri }}
         style={styles.webview}
         originWhitelist={['*']}
@@ -90,7 +91,9 @@ export default function AppNative() {
         overScrollMode="never"
         setSupportMultipleWindows={false}
         onMessage={handleMessage}
-        onNavigationStateChange={(navState: WebViewNavigation) => setCanGoBack(navState.canGoBack)}
+        onNavigationStateChange={(navState: WebViewNavigation): void => {
+          canGoBackRef.current = navState.canGoBack;
+        }}
       />
     </View>
   );

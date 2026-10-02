@@ -43,7 +43,7 @@ class LiveKitService extends EventEmitter {
   private screenShareTrack: LocalTrack | null = null;
   private screenShareAudioTrack: LocalTrack | null = null;
   private participants: Map<string, ParticipantInfo> = new Map();
-  private reconnectTimer: NodeJS.Timeout | null = null;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private connectionAttempts = 0;
   private readonly MAX_RECONNECT_ATTEMPTS = 5;
   private isConnecting = false;

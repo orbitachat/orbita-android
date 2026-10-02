@@ -58,8 +58,8 @@ export const GlobalAudioPlayer = () => {
   const volumeBtnRef = useRef<HTMLButtonElement>(null);
   const orderBtnRef = useRef<HTMLButtonElement>(null);
   const speedBtnRef = useRef<HTMLButtonElement>(null);
-  const volumeOpenTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const volumeCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const volumeOpenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const volumeCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const playerRef = useRef<HTMLDivElement>(null);
 
