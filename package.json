@@ -1,78 +1,19 @@
 {
   "name": "orbita",
   "version": "1.0.32",
-  "description": "Orbita",
+  "description": "Orbita Android Messenger",
   "author": "Saizzi",
-  "main": "dist-electron/main.cjs",
+  "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "dev:server": "vite",
     "build": "npx -p typescript tsc --noEmit && vite build",
-    "build:native": "cd native && npx napi build --release && copy index.node ..\\index.node",
-    "electron:dev": "npm run dev",
-    "electron:build": "npm run build && npm run build:native && npx electron-builder --win",
-    "backup": "backup.bat",
-    "save": "backup.bat"
-  },
-  "build": {
-    "appId": "com.saizzi.orbita",
-    "productName": "Orbita Desktop",
-    "directories": {
-      "output": "release"
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "orbitachat",
-        "repo": "orbita-desktop",
-        "releaseType": "draft"
-      }
-    ],
-    "files": [
-      "dist/**/*",
-      "dist-electron/**/*",
-      "package.json"
-    ],
-    "extraResources": [
-      {
-        "from": "index.node",
-        "to": "./index.node"
-      },
-      {
-        "from": ".env",
-        "to": "./.env"
-      }
-    ],
-    "asar": true,
-    "asarUnpack": [
-      "**/index.node",
-      "**/*.ttf"
-    ],
-    "win": {
-      "icon": "public/icons/icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ]
-    },
-    "mac": {
-      "icon": "public/icons/icon.icns"
-    },
-    "linux": {
-      "icon": "public/icons/512x512.png"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Orbita Desktop",
-      "artifactName": "setup_${version}.${ext}"
-    }
+    "build:web": "vite build",
+    "sync:assets": "powershell -Command \"New-Item -ItemType Directory -Force -Path 'android/app/src/main/assets/web' | Out-Null; Copy-Item -Recurse -Force 'dist/*' 'android/app/src/main/assets/web'\"",
+    "prebuild": "npx expo prebuild --platform android",
+    "android:build": "npm run build:web && npm run sync:assets && powershell -Command \"Set-Item -Path Env:JAVA_HOME -Value 'C:\\Program Files\\Android\\Android Studio\\jbr'; Set-Item -Path Env:ANDROID_HOME -Value '$env:LOCALAPPDATA\\Android\\Sdk'; cd android; .\\gradlew.bat assembleDebug\"",
+    "android:install": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
+    "android:run": "npm run android:build && npm run android:install && adb shell monkey -p com.saizzi.orbita -c android.intent.category.LAUNCHER 1",
+    "backup": "node scripts/backup.js"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
@@ -93,7 +34,8 @@
     "cors": "^2.8.6",
     "crypto-js": "^4.2.0",
     "dotenv": "^17.4.2",
-    "electron-updater": "^6.8.9",
+    "expo": "^57.0.26",
+    "expo-status-bar": "^57.0.1",
     "express": "^5.2.1",
     "framer-motion": "^12.38.0",
     "fs-extra": "^11.0.0",
@@ -116,15 +58,13 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-i18next": "^14.1.3",
+    "react-native": "^0.86.3",
+    "react-native-webview": "^14.0.1",
     "react-virtuoso": "^4.18.11",
-    "sqlite3": "^6.0.1",
-    "uiohook-napi": "^1.5.5",
     "ws": "^8.21.1",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@napi-rs/cli": "^3.7.2",
-    "@types/better-sqlite3": "^7.6.0",
     "@types/crypto-js": "^4.2.2",
     "@types/jsmediatags": "^3.9.6",
     "@types/node": "^22.19.20",
@@ -134,15 +74,10 @@
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
     "autoprefixer": "^10.5.0",
-    "concurrently": "^9.0.0",
-    "electron": "^33.0.0",
-    "electron-builder": "^25.0.0",
     "postcss": "^8.5.13",
     "tailwindcss": "^4.2.4",
     "typescript": "~5.8.3",
     "vite": "^7.0.4",
-    "vite-plugin-electron": "^0.29.0",
-    "wait-on": "^8.0.0",
     "wrangler": "^4.112.0"
   }
 }
