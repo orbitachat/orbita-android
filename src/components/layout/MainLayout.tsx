@@ -863,6 +863,7 @@ export const MainLayout = () => {
   });
   const pinnedChatIds = useChatStore((s) => s.pinnedChatIds) || [];
   const togglePinChat = useChatStore((s) => s.togglePinChat);
+  const openSettings = useChatStore((s) => s.openSettings);
   const pinnedChatsSet = useMemo(() => new Set(pinnedChatIds), [pinnedChatIds]);
   const messagesByChatId = useChatStore((s) => s.messagesByChatId);
   const startCall = useCallStore((s) => s.startCall);
@@ -5213,8 +5214,8 @@ export const MainLayout = () => {
                         <div className="flex items-center min-w-0 gap-3">
                           <button
                             type="button"
-                            onClick={() => setIsMainMenuOpen(true)}
-                            aria-label={t('mainMenu.open_menu', 'Открыть меню')}
+                            onClick={() => openSettings('main')}
+                            aria-label={t('common.settings', 'Настройки')}
                             className="flex items-center justify-center cursor-pointer transition-all active:scale-95 shrink-0"
                             style={{
                               width: '38px',
@@ -5255,8 +5256,8 @@ export const MainLayout = () => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => setIsMainMenuOpen(true)}
-                            aria-label={t('mainMenu.open_menu', 'Меню')}
+                            onClick={() => openSettings('main')}
+                            aria-label={t('common.settings', 'Настройки')}
                             className="flex items-center justify-center cursor-pointer transition-all active:scale-95 text-[var(--text-dim)] hover:text-[var(--text-main)] hover:bg-[var(--surface-container)] rounded-full shrink-0"
                             style={{
                               width: '40px',
