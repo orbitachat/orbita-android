@@ -302,7 +302,7 @@ export const MessageInput = memo<MessageInputProps>(({
   }, [inputRef]);
 
   const placeCaretAtEnd = (el: HTMLElement) => {
-    el.focus();
+    el.focus({ preventScroll: true });
     if (typeof window.getSelection !== 'undefined' && typeof document.createRange !== 'undefined') {
       const range = document.createRange();
       range.selectNodeContents(el);
@@ -315,9 +315,8 @@ export const MessageInput = memo<MessageInputProps>(({
     }
   };
 
-  // Handle focus when replying, editing, mounting, or returning to chat
   useEffect(() => {
-    if (editorRef.current) {
+    if (editorRef.current && (editingIndex !== null || replyingTo !== null)) {
       setTimeout(() => {
         if (editorRef.current) {
           placeCaretAtEnd(editorRef.current);
@@ -646,6 +645,7 @@ export const MessageInput = memo<MessageInputProps>(({
         zIndex: 10,
         backgroundColor: 'transparent',
         padding: '6px 14px 10px 14px',
+        paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))',
         borderTop: 'none',
         display: 'flex',
         flexDirection: 'column',

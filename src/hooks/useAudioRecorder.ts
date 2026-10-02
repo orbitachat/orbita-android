@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useChatStore } from '../store/useChatStore';
 import { useDevicePermissionStore } from '../store/useDevicePermissionStore';
-import { convertWebMOpusToOgg } from '../utils/oggRemuxer';
 
 export interface RecordedAudioData {
   blob: Blob;
@@ -257,23 +256,13 @@ export function useAudioRecorder() {
       const recorder = mediaRecorderRef.current;
       if (!recorder || recorder.state === 'inactive') {
         if (draftBlob) {
-          (async () => {
-            let finalBlob = draftBlob;
-            try {
-              const ab = await draftBlob.arrayBuffer();
-              const oggBytes = convertWebMOpusToOgg(new Uint8Array(ab));
-              if (oggBytes && oggBytes.length > 0) {
-                finalBlob = new Blob([oggBytes as unknown as BlobPart], { type: 'audio/ogg;codecs=opus' });
-              }
-            } catch {}
-            const waveform = computeNormalizedWaveform(samplesRef.current);
-            const finalDuration = Math.max(0.5, recordingTime);
-            cleanupStream();
-            cleanupAudioContext();
-            clearTimer();
-            setStatus('idle');
-            resolve({ blob: finalBlob, duration: finalDuration, waveform });
-          })();
+          const waveform = computeNormalizedWaveform(samplesRef.current);
+          const finalDuration = Math.max(0.5, recordingTime);
+          cleanupStream();
+          cleanupAudioContext();
+          clearTimer();
+          setStatus('idle');
+          resolve({ blob: draftBlob, duration: finalDuration, waveform });
           return;
         }
         resolve(null);
@@ -281,16 +270,8 @@ export function useAudioRecorder() {
       }
 
       recorder.onstop = async () => {
-        const rawBlob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
-        let finalBlob = rawBlob;
-        try {
-          const ab = await rawBlob.arrayBuffer();
-          const oggBytes = convertWebMOpusToOgg(new Uint8Array(ab));
-          if (oggBytes && oggBytes.length > 0) {
-            finalBlob = new Blob([oggBytes as unknown as BlobPart], { type: 'audio/ogg;codecs=opus' });
-          }
-        } catch {}
-
+        const mimeType = recorder.mimeType || 'audio/webm';
+        const finalBlob = new Blob(audioChunksRef.current, { type: mimeType });
         const waveform = computeNormalizedWaveform(samplesRef.current);
         const finalDuration = Math.max(0.5, recordingTime);
 

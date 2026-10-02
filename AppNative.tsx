@@ -24,21 +24,32 @@ export default function AppNative() {
   useEffect(() => {
     if (Platform.OS !== 'android') return;
     const backAction = () => {
-      if (canGoBack && webViewRef.current) {
-        webViewRef.current.goBack();
+      if (webViewRef.current) {
+        webViewRef.current.injectJavaScript(
+          "if (typeof window.__handleOrbitaBack === 'function') { const h = window.__handleOrbitaBack(); if (!h && window.ReactNativeWebView) { window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'EXIT_APP' })); } } else { window.dispatchEvent(new CustomEvent('orbita_back_pressed')); } true;"
+        );
         return true;
       }
       return false;
     };
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
     return () => backHandler.remove();
-  }, [canGoBack]);
+  }, []);
+
+  const handleMessage = (event: any) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      if (data?.type === 'EXIT_APP') {
+        BackHandler.exitApp();
+      }
+    } catch {}
+  };
 
   const webAppUri = 'file:///android_asset/web/index.html';
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#121214" />
+      <StatusBar barStyle="light-content" backgroundColor="#121214" translucent={false} />
       <WebView
         ref={webViewRef}
         source={{ uri: webAppUri }}
@@ -59,6 +70,7 @@ export default function AppNative() {
         showsHorizontalScrollIndicator={false}
         overScrollMode="never"
         setSupportMultipleWindows={false}
+        onMessage={handleMessage}
         onNavigationStateChange={(navState) => setCanGoBack(navState.canGoBack)}
       />
     </View>
@@ -69,7 +81,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#121214',
-    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0,
   },
   webview: {
     flex: 1,

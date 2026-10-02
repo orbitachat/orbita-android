@@ -990,6 +990,102 @@ export const MainLayout = () => {
   }, []);
 
   useEffect(() => {
+    const handleOrbitaBack = (): boolean => {
+      if (confirmModal.isOpen) {
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        return true;
+      }
+      if (showVoiceDiscardModal) {
+        setShowVoiceDiscardModal(false);
+        return true;
+      }
+      if (showUploadDiscardModal) {
+        setShowUploadDiscardModal(false);
+        return true;
+      }
+      if (chatContextMenu.visible) {
+        setChatContextMenu((prev) => ({ ...prev, visible: false }));
+        return true;
+      }
+      if (isMainMenuOpen) {
+        setIsMainMenuOpen(false);
+        return true;
+      }
+      if (isMyProfileOpen) {
+        setIsMyProfileOpen(false);
+        return true;
+      }
+      if (showCallsModal) {
+        setShowCallsModal(false);
+        return true;
+      }
+      if (showFriendRequestsModal) {
+        setShowFriendRequestsModal(false);
+        return true;
+      }
+      if (showDeleteModal) {
+        setShowDeleteModal(false);
+        return true;
+      }
+      if (connectModalConfig.isOpen) {
+        setConnectModalConfig((prev) => ({ ...prev, isOpen: false }));
+        return true;
+      }
+      if (inChatSearch.isOpen) {
+        closeInChatSearch();
+        return true;
+      }
+      if (activeProfileChatId) {
+        setActiveProfileChatId(null);
+        return true;
+      }
+      if (currentView !== 'chats') {
+        setCurrentView('chats');
+        return true;
+      }
+      if (activeChatId) {
+        setActiveChat(null);
+        closeChatStore();
+        return true;
+      }
+      return false;
+    };
+
+    (window as any).__handleOrbitaBack = handleOrbitaBack;
+
+    const onCustomBack = () => {
+      handleOrbitaBack();
+    };
+
+    window.addEventListener('orbita_back_pressed', onCustomBack);
+
+    return () => {
+      delete (window as any).__handleOrbitaBack;
+      window.removeEventListener('orbita_back_pressed', onCustomBack);
+    };
+  }, [
+    confirmModal.isOpen,
+    showVoiceDiscardModal,
+    showUploadDiscardModal,
+    chatContextMenu.visible,
+    isMainMenuOpen,
+    isMyProfileOpen,
+    showCallsModal,
+    showFriendRequestsModal,
+    showDeleteModal,
+    connectModalConfig.isOpen,
+    inChatSearch.isOpen,
+    activeProfileChatId,
+    currentView,
+    activeChatId,
+    closeInChatSearch,
+    setActiveProfileChatId,
+    setCurrentView,
+    setActiveChat,
+    closeChatStore,
+  ]);
+
+  useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (chatMenuRef.current && !chatMenuRef.current.contains(e.target as Node))
         setChatContextMenu((prev) => ({ ...prev, visible: false }));

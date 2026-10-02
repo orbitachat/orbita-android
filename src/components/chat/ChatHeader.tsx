@@ -50,12 +50,14 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   return (
     <div
       ref={headerRef as any}
-      className="sticky top-0 z-20 w-full select-none"
+      className="w-full flex-shrink-0 select-none"
       style={{
         backgroundColor: 'var(--bg-primary)',
         borderBottom: 'none',
         userSelect: 'none',
         WebkitUserSelect: 'none',
+        flexShrink: 0,
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
     >
       <header

@@ -275,6 +275,16 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY !== 0 || window.scrollX !== 0) {
+        window.scrollTo(0, 0);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: false });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
     const syncSystemIntegration = async () => {
       try {
         if (typeof window !== 'undefined' && window.orbita?.getAutoLaunchState) {

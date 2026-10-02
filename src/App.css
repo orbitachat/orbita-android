@@ -76,16 +76,34 @@ html {
   font-size: 16px;
 }
 
+@media (max-width: 768px) {
+  html {
+    font-size: 19px;
+  }
+  :root {
+    --text-scale: 1.15;
+  }
+}
+
 html,
-body,
-#root {
+body {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
+  overscroll-behavior: none;
   user-select: none;
   -webkit-user-select: none;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 *,
