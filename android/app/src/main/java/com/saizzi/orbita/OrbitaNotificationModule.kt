@@ -23,7 +23,9 @@ class OrbitaNotificationModule(private val reactContext: ReactApplicationContext
 
     init {
         createNotificationChannels()
-        OrbitaForegroundService.start(reactContext)
+        try {
+            OrbitaForegroundService.start(reactContext)
+        } catch (_: Exception) {}
     }
 
     private fun createNotificationChannels() {
