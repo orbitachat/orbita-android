@@ -58,16 +58,20 @@
     },
     "appLock": {
       "title": "Unlock Orbita",
+      "unlock_orbita": "Unlock Orbita",
       "subtitle": "Enter your password to unlock the app",
       "placeholder": "Password",
       "enter_password_label": "Enter password",
       "unlock_button": "Unlock",
       "done_button": "Done",
+      "try_again": "Try again",
       "wrong_password": "Incorrect password. Please try again.",
       "decrypting": "Decrypting data and loading chats...",
       "biometric_prompt": "Scan fingerprint",
       "biometric_failed": "Biometric authentication failed",
-      "biometric_scan_desc": "App is locked. Confirm entrance with fingerprint."
+      "biometric_scan_desc": "App is locked. Confirm entrance with fingerprint.",
+      "biometric_android_desc": "Use your Android device lock settings to unlock Orbita.",
+      "learn_more": "Learn more"
     },
     "qrModal": {
       "title": "Get QR code",

@@ -5784,7 +5784,7 @@ export const MainLayout = () => {
                   <div
                     className="absolute right-4 z-20 flex flex-col items-center gap-3"
                     style={{
-                      bottom: '98px',
+                      bottom: '106px',
                     }}
                   >
                     {mobileNavTab === 'chats' ? (
@@ -5821,9 +5821,9 @@ export const MainLayout = () => {
                   <div
                     className="flex items-center justify-around w-full shrink-0 select-none bg-[#131418] border-t border-[rgba(255,255,255,0.06)]"
                     style={{
-                      height: '84px',
-                      paddingTop: '6px',
-                      paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))',
+                      height: '92px',
+                      paddingTop: '10px',
+                      paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))',
                       boxSizing: 'border-box',
                     }}
                   >
