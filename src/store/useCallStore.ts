@@ -701,6 +701,17 @@ export const useCallStore = create<CallStore>((set, get) => {
       }
       lastSeenOfferRoom = call.roomName;
       set({ incomingCall: call, callState: 'ringing', isMinimized: false });
+      if (typeof window !== 'undefined' && (window as any).ReactNativeWebView) {
+        try {
+          (window as any).ReactNativeWebView.postMessage(
+            JSON.stringify({
+              type: 'INCOMING_CALL',
+              callerName: useChatStore.getState().chats.find((c) => c.id === call.chatId)?.name || call.from || '',
+              chatId: call.chatId || '',
+            })
+          );
+        } catch {}
+      }
       try { useAudioStore.getState().pause(); } catch {}
       callSoundService.play('incoming');
         const myNick = get().myNickname || useAuthStore.getState().nickname;
@@ -975,6 +986,11 @@ export const useCallStore = create<CallStore>((set, get) => {
       sendCallSignalReliable(chatId, { type: 'call-reject', sender: state.myNickname || useAuthStore.getState().nickname || undefined, text: '', roomName });
       console.log(`${LOG_PREFIX} Incoming call rejected${silent ? ' (auto)' : ''}`);
       set({ incomingCall: null, activeCall: null, callState: 'idle', duration: 0, statusMessage: '', isEnding: false });
+      if (typeof window !== 'undefined' && (window as any).ReactNativeWebView) {
+        try {
+          (window as any).ReactNativeWebView.postMessage(JSON.stringify({ type: 'CLEAR_CALL' }));
+        } catch {}
+      }
       try { (window as any).orbita?.closeCallWindow?.(); } catch {}
     },
 
@@ -1055,6 +1071,11 @@ export const useCallStore = create<CallStore>((set, get) => {
       console.log(`${LOG_PREFIX} Call ended. status=${endedStatus} duration=${duration}s`);
       try { localStorage.removeItem('orbita_active_call_state'); } catch {}
       set({ activeCall: null, incomingCall: null, callState: 'idle', duration: 0, isMicEnabled: false, isVideoEnabled: false, isScreenSharing: false, isScreenPickerOpen: false, remoteScreenShareTrack: null, remoteScreenShareIdentity: null, statusMessage: '', isEnding: false, isMinimized: false });
+      if (typeof window !== 'undefined' && (window as any).ReactNativeWebView) {
+        try {
+          (window as any).ReactNativeWebView.postMessage(JSON.stringify({ type: 'CLEAR_CALL' }));
+        } catch {}
+      }
       try { (window as any).orbita?.closeCallWindow?.(); } catch {}
     },
 

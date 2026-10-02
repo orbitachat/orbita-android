@@ -645,7 +645,7 @@ export const MessageInput = memo<MessageInputProps>(({
         zIndex: 10,
         backgroundColor: 'transparent',
         padding: '6px 14px 10px 14px',
-        paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))',
+        paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
         borderTop: 'none',
         display: 'flex',
         flexDirection: 'column',

@@ -484,6 +484,7 @@ export const CallWindow = () => {
   const isConnected = callState === 'connected';
   const isEnded = callState === 'ended';
   const isMinimized = useCallStore((state) => state.isMinimized);
+  const setMinimized = useCallStore((state) => state.setMinimized);
   const duration = useCallStore((state) => state.duration);
   const isMicEnabled = useCallStore((state) => state.isMicEnabled);
   const isVideoEnabled = useCallStore((state) => state.isVideoEnabled);
@@ -1190,7 +1191,29 @@ export const CallWindow = () => {
         </div>
       )}
 
-      <div style={{ height: '30px' }} className="w-full flex-shrink-0" />
+      <div
+        style={{
+          height: '48px',
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+        }}
+        className="w-full flex-shrink-0 flex items-center px-3"
+      >
+        <button
+          type="button"
+          aria-label={t('call.minimize', 'Свернуть')}
+          onClick={() => setMinimized(true)}
+          className="flex items-center justify-center rounded-full border-0 cursor-pointer transition-opacity hover:opacity-70 active:opacity-50"
+          style={{
+            width: '36px',
+            height: '36px',
+            background: 'rgba(255,255,255,0.12)',
+          }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+      </div>
 
       <div ref={remoteAudioContainerRef} style={{ display: 'none' }} />
 

@@ -1361,5 +1361,9 @@
       "preparing_interface": "Preparing interface...",
       "starting": "Starting..."
     }
+  },
+  "call": {
+    "minimize": "Minimize",
+    "call": "Call"
   }
 }

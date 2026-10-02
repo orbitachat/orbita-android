@@ -1,20 +1,24 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { StyleSheet, View, BackHandler, Platform, PermissionsAndroid, StatusBar } from 'react-native';
+import { StyleSheet, View, BackHandler, Platform, PermissionsAndroid, StatusBar, NativeModules } from 'react-native';
 import { WebView } from 'react-native-webview';
+import type { WebViewNavigation } from 'react-native-webview';
 
 export default function AppNative() {
-  const webViewRef = useRef<WebView>(null);
+  const webViewRef = useRef<any>(null);
   const [canGoBack, setCanGoBack] = useState(false);
 
   useEffect(() => {
     async function requestAndroidPermissions() {
       if (Platform.OS === 'android') {
         try {
-          await PermissionsAndroid.requestMultiple([
+          const perms: any[] = [
             PermissionsAndroid.PERMISSIONS.CAMERA,
             PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-            PermissionsAndroid.PERMISSIONS.MODIFY_AUDIO_SETTINGS,
-          ]);
+          ];
+          if (Platform.Version >= 33) {
+            perms.push('android.permission.POST_NOTIFICATIONS');
+          }
+          await PermissionsAndroid.requestMultiple(perms);
         } catch {}
       }
     }
@@ -41,6 +45,21 @@ export default function AppNative() {
       const data = JSON.parse(event.nativeEvent.data);
       if (data?.type === 'EXIT_APP') {
         BackHandler.exitApp();
+      } else if (data?.type === 'NOTIFICATION') {
+        NativeModules.OrbitaNotificationModule?.showNotification(
+          data.title || 'Orbita',
+          data.body || '',
+          data.chatId || ''
+        );
+      } else if (data?.type === 'INCOMING_CALL') {
+        NativeModules.OrbitaNotificationModule?.showCallNotification(
+          data.callerName || '',
+          data.chatId || ''
+        );
+      } else if (data?.type === 'CLEAR_CALL') {
+        NativeModules.OrbitaNotificationModule?.clearCallNotification();
+      } else if (data?.type === 'CLEAR_NOTIFICATIONS') {
+        NativeModules.OrbitaNotificationModule?.clearNotifications();
       }
     } catch {}
   };
@@ -71,7 +90,7 @@ export default function AppNative() {
         overScrollMode="never"
         setSupportMultipleWindows={false}
         onMessage={handleMessage}
-        onNavigationStateChange={(navState) => setCanGoBack(navState.canGoBack)}
+        onNavigationStateChange={(navState: WebViewNavigation) => setCanGoBack(navState.canGoBack)}
       />
     </View>
   );

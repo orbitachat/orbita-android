@@ -21,12 +21,22 @@ export const ActiveCallBar: React.FC<ActiveCallBarProps> = ({ className = '', st
   const activeChatId = useChatStore((s) => s.activeChatId);
   const chatColor = useChatStore((s) => s.chatColor);
 
+  const duration = useCallStore((s) => s.duration);
+  const statusMessage = useCallStore((s) => s.statusMessage);
+  const setMinimized = useCallStore((s) => s.setMinimized);
+
   const isCallActive = !!activeCall && (callState === 'connected' || callState === 'connecting' || callState === 'ringing');
 
   const currentCallChat = activeCall ? chats.find((c) => c.id === activeCall.chatId) : null;
   const activeChat = useMemo(() => chats.find((c) => c.id === activeChatId), [chats, activeChatId]);
   const currentCallName = currentCallChat?.name || (activeCall as any)?.otherName || activeChat?.name || '';
   const currentCallAvatar = currentCallChat?.avatarUrl || (activeCall as any)?.otherAvatar || (currentCallChat?.id === activeChatId ? activeChat?.avatarUrl : null);
+
+  const formatDuration = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   const gradientBackground = useMemo(() => {
     if (chatColor && chatColor.startsWith('linear-gradient')) {
@@ -42,7 +52,7 @@ export const ActiveCallBar: React.FC<ActiveCallBarProps> = ({ className = '', st
     <div
       className={`active-call-header-bar w-full flex items-center justify-between select-none cursor-pointer relative overflow-hidden flex-shrink-0 ${className}`}
       style={{
-        height: '42px',
+        height: '46px',
         background: gradientBackground,
         border: 'none',
         borderBottom: 'none',
@@ -50,6 +60,7 @@ export const ActiveCallBar: React.FC<ActiveCallBarProps> = ({ className = '', st
         ...style,
       }}
       onClick={() => {
+        setMinimized(false);
         try {
           const orb = (window as any).orbita;
           orb?.openCallWindow?.() || orb?.focusCallWindow?.();
@@ -94,6 +105,15 @@ export const ActiveCallBar: React.FC<ActiveCallBarProps> = ({ className = '', st
             style={{ fontSize: '11px' }}
           />
         </div>
+      </div>
+
+      <div className="flex flex-col min-w-0 flex-1 px-3 z-10 justify-center">
+        <span className="text-[13px] font-semibold text-white truncate leading-tight">
+          {currentCallName || t('call.call', 'Звонок')}
+        </span>
+        <span className="text-[11px] text-white/80 tabular-nums leading-tight">
+          {callState === 'connected' ? formatDuration(duration) : (statusMessage || t('call.connecting', 'Соединение...'))}
+        </span>
       </div>
 
       <div className="flex items-center ml-auto z-10 pr-4">

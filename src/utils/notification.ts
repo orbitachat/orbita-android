@@ -125,7 +125,19 @@ export function showNotification(
 
   const fontFamilyCSS = getFontFamilyCSS(fontFamily);
 
-  // ── Electron & Нативные уведомления Windows ──
+  if (typeof window !== 'undefined' && (window as any).ReactNativeWebView) {
+    try {
+      (window as any).ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: 'NOTIFICATION',
+          title: finalTitle,
+          body: finalBody,
+          chatId,
+        })
+      );
+    } catch {}
+  }
+
   if (notificationNativeWindows && ('Notification' in window)) {
     if (Notification.permission === 'granted') {
       try {

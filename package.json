@@ -9,7 +9,7 @@
     "build": "npx -p typescript tsc --noEmit && vite build",
     "build:web": "vite build",
     "sync:assets": "powershell -Command \"New-Item -ItemType Directory -Force -Path 'android/app/src/main/assets/web' | Out-Null; Copy-Item -Recurse -Force 'dist/*' 'android/app/src/main/assets/web'\"",
-    "prebuild": "npx expo prebuild --platform android",
+    "expo:prebuild": "npx expo prebuild --platform android",
     "android:build": "npm run build:web && npm run sync:assets && powershell -Command \"Set-Item -Path Env:JAVA_HOME -Value 'C:\\Program Files\\Android\\Android Studio\\jbr'; Set-Item -Path Env:ANDROID_HOME -Value '$env:LOCALAPPDATA\\Android\\Sdk'; cd android; .\\gradlew.bat assembleDebug\"",
     "android:install": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
     "android:run": "npm run android:build && npm run android:install && adb shell monkey -p com.saizzi.orbita -c android.intent.category.LAUNCHER 1",

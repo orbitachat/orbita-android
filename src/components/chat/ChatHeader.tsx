@@ -52,12 +52,15 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
       ref={headerRef as any}
       className="w-full flex-shrink-0 select-none"
       style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 30,
         backgroundColor: 'var(--bg-primary)',
         borderBottom: 'none',
         userSelect: 'none',
         WebkitUserSelect: 'none',
         flexShrink: 0,
-        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingTop: isMobileView ? 'calc(18px + env(safe-area-inset-top, 0px))' : 'env(safe-area-inset-top, 0px)',
       }}
     >
       <header
@@ -97,11 +100,11 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             )}
             {isMobileView && (
               activeChatId === 'notes' ? (
-                <NotesAvatar className="w-10 h-10" />
+                <NotesAvatar className="w-11 h-11" />
               ) : activeChat?.type === 'bot' ? (
-                <BotAvatar className="w-10 h-10" />
+                <BotAvatar className="w-11 h-11" />
               ) : (
-                <Avatar src={activeChat?.avatarUrl} alt={activeChat?.name} className="w-10 h-10 rounded-full flex-shrink-0" />
+                <Avatar src={activeChat?.avatarUrl} alt={activeChat?.name} className="w-11 h-11 rounded-full flex-shrink-0" />
               )
             )}
             <div className="flex flex-col min-w-0 flex-1 select-none" style={{ gap: 0, userSelect: 'none', WebkitUserSelect: 'none' }}>

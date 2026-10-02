@@ -459,11 +459,11 @@ const ChatListItem = React.memo(({
           ? (isLightTheme ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)')
           : 'transparent',
         border: 'none',
-        padding: '8px 11px 8px 14px',
-        minHeight: 48,
+        padding: '10px 11px 10px 14px',
+        minHeight: 72,
         boxSizing: 'border-box',
         contentVisibility: 'auto',
-        containIntrinsicSize: '64px',
+        containIntrinsicSize: '72px',
         willChange: 'transform',
         transition: 'background-color 0.12s ease',
       }}
@@ -481,13 +481,13 @@ const ChatListItem = React.memo(({
       }}
     >
       <div className="flex justify-between items-center min-w-0">
-        <div style={{ width: 48, height: 48, marginRight: 10, flexShrink: 0, position: 'relative' }}>
+        <div style={{ width: 54, height: 54, marginRight: 12, flexShrink: 0, position: 'relative' }}>
           {chat.id === 'notes' ? (
-            <NotesAvatar className="w-12 h-12" />
+            <NotesAvatar className="w-[54px] h-[54px]" />
           ) : chat.type === 'bot' ? (
-            <BotAvatar className="w-12 h-12" />
+            <BotAvatar className="w-[54px] h-[54px]" />
           ) : (
-            <Avatar src={chat.avatarUrl} alt={chat.name} className="w-12 h-12" style={{ borderRadius: '50%' }} />
+            <Avatar src={chat.avatarUrl} alt={chat.name} className="w-[54px] h-[54px]" style={{ borderRadius: '50%' }} />
           )}
           {chat.type === 'private' && chat.id !== 'notes' && chat.online && (
             <span
@@ -543,7 +543,7 @@ const ChatListItem = React.memo(({
                 />
               )}
               <span
-                className="text-[14px] font-bold truncate whitespace-nowrap overflow-hidden text-ellipsis min-w-0"
+                className="text-[15px] font-bold truncate whitespace-nowrap overflow-hidden text-ellipsis min-w-0"
                 style={{
                   color: isLightTheme ? '#111111' : 'rgba(255,255,255,0.85)',
                   fontFamily: 'inherit'
@@ -590,7 +590,7 @@ const ChatListItem = React.memo(({
           </div>
           <div className="flex items-center min-w-0 w-full overflow-hidden">
             <div
-              className="text-[13px] font-normal whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0"
+              className="text-[14px] font-normal whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0"
               style={{
                 color: showDraft
                   ? (isLightTheme ? '#111111' : 'rgba(255,255,255,0.85)')
@@ -5017,7 +5017,7 @@ export const MainLayout = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  paddingTop: 'calc(12px + env(safe-area-inset-top, 0px))',
+                  paddingTop: isMobileView ? 'calc(18px + env(safe-area-inset-top, 0px))' : 'calc(12px + env(safe-area-inset-top, 0px))',
                 }}
               >
                 <div className="flex items-center min-w-0" style={{ width: '100%' }}>
